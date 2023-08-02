@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    parameters {
+      choice choices: ['choice1', 'choice2'], name: 'parameter_1'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo "Build Stage with parameter $parameter_1"
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "Test Stage"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "Deploy Stage"
+            }
+        }
+    }
+}
