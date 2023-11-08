@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    parameters {
+     choice choices: ['choice1', 'choice2'], name: 'parameter'}
+     options {
+  timeout(10)
+}
+stages {
+  stage('scm checkout') {
+    steps {
+        git branch: 'main', credentialsId: 'github_app', url: 'https://github.com/saurabh-devops/krtraining_jenkins.git'
+        sh '''ls -lrt
+        echo $parameter
+pwd'''
+      
+    }
+  }
+
+  stage('sonarqube analysis') {
+    steps {
+      withSonarQubeEnv(credentialsId: 'sonar', installationName: 'sonarqube1') {
+          git branch: 'master', url: 'https://github.com/SonarSource/sonar-scanning-examples.git'
+          sh '''cd ./sonarqube-scanner-maven/maven-basic
+mvn clean verify sonar:sonar'''
+
+}
+    }
+  }
+
+  stage('ansible') {
+      agent {
+  label 'slave2'
+}
+    steps {
+        
+      git branch: 'main', credentialsId: 'github_app', url: 'https://github.com/saurabh-devops/krtraining_jenkins.git'
+        sh '''ansible localhost -m shell -a uptime'''
+    }
+  }
+
+}
+
+}
